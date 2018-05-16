@@ -17,7 +17,7 @@ func SignUp(c *gin.Context) {
 		t.Execute(c.Writer, nil)
 	} else {
 		// Validation
-		user := validationCheck(c.Request.FormValue("user_id"), c.Request.FormValue("user_name"), c.Request.FormValue("password"), c.Request.FormValue("description"))
+		user := validationCheck(c.Request.FormValue("login_name"), c.Request.FormValue("user_name"), c.Request.FormValue("password"), c.Request.FormValue("description"))
 
 		dbCreate(user)
 	}
@@ -29,7 +29,7 @@ func Login(c *gin.Context) {
 
 	user := model.User{}
 
-	if err := db.Where("user_id = ?", c.Request.FormValue("user_id")).First(&user).Error; err != nil {
+	if err := db.Where("login_name = ?", c.Request.FormValue("login_name")).First(&user).Error; err != nil {
 		panic(err)
 	}
 
@@ -37,9 +37,12 @@ func Login(c *gin.Context) {
 	if er == nil {
 		// return
 		fmt.Print("Success")
+		c.JSON(200, user)
 	} else {
 		// return
+		tt := model.User{}
 		fmt.Print("Failure")
+		c.JSON(400, tt)
 	}
 }
 
@@ -53,7 +56,7 @@ func validationCheck(ui, un, pass, des string) model.User {
 	}
 
 	userVali := model.User{}
-	userVali.UserId = ui
+	userVali.LoginName = ui
 
 	if db.Select(userVali) != nil {
 		fmt.Println("Error")
@@ -61,7 +64,7 @@ func validationCheck(ui, un, pass, des string) model.User {
 
 	user := model.User{
 		Id:          0,
-		UserId:      ui,
+		LoginName:   ui,
 		UserName:    un,
 		PassWord:    hash,
 		Description: des,

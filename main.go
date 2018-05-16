@@ -1,31 +1,16 @@
 package main
 
 import (
-	"fmt"
-
-	"github.com/jinzhu/gorm"
-	_ "github.com/mattn/go-sqlite3"
+	"github.com/gin-gonic/gin"
+	"github.com/tomoyamatsuyama/db-sample/handler"
 )
 
 func main() {
+	server := gin.Default()
 
-	type User struct {
-		Id   int
-		Name string
-	}
+	server.POST("/users", handler.SignUp)
 
-	db, _ := gorm.Open("sqlite3", "./test.db")
-	defer db.Close()
+	server.POST("/login", handler.Login)
 
-	db.AutoMigrate(&User{})
-
-	tomoya := &User{}
-	tomoya.Id = 0
-	tomoya.Name = "tomoya"
-
-	db.Create(&tomoya)
-
-	var users []User
-	db.Find(&users) // SELECT * FROM users;
-	fmt.Println(users)
+	server.Run(":3000")
 }
